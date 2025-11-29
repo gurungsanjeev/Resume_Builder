@@ -1,6 +1,6 @@
-import ResumePDF from "../Utils/ResumePDF"; 
-import { PDFDownloadLink } from "@react-pdf/renderer";
 import React, { useState, useEffect } from "react";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ResumePDF2 from "../Utils/ResumePDF2";
 
 const NormalDesign = () => {
   const [personalInfo, setPersonalInfo] = useState({});
@@ -12,189 +12,190 @@ const NormalDesign = () => {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    const personal = JSON.parse(localStorage.getItem("personalDetails"));
-    const education = JSON.parse(localStorage.getItem("EducationDetails"));
-    const experience = JSON.parse(localStorage.getItem("WorkExperiences"));
-    const certificationData = JSON.parse(localStorage.getItem("CertificateData"));
-    const achievementData = JSON.parse(localStorage.getItem("AchievementData"));
-    const skillsData = JSON.parse(localStorage.getItem("SkillsDetails"));
-    const projectData = JSON.parse(localStorage.getItem("ProjectData"));
-
-    if (personal) setPersonalInfo(personal);
-    if (education) setEducationInfo(education);
-    if (experience) setExperienceInfo(experience);
-    if (certificationData) setCertification(certificationData);
-    if (achievementData) setAchievement(achievementData);
-    if (skillsData) setSkills(skillsData);
-    if (projectData) setProjects(projectData);
+    setPersonalInfo(JSON.parse(localStorage.getItem("personalDetails")) || {});
+    setEducationInfo(JSON.parse(localStorage.getItem("EducationDetails")) || []);
+    setExperienceInfo(JSON.parse(localStorage.getItem("WorkExperiences")) || []);
+    setCertification(JSON.parse(localStorage.getItem("CertificateData")) || []);
+    setAchievement(JSON.parse(localStorage.getItem("AchievementData")) || []);
+    setSkills(JSON.parse(localStorage.getItem("SkillsDetails")) || []);
+    setProjects(JSON.parse(localStorage.getItem("ProjectData")) || []);
   }, []);
 
+  // Combine all data into one form object for ResumePDF2
+  const form = {
+    fullName: `${personalInfo.fname || ""} ${personalInfo.mname || ""} ${personalInfo.lname || ""}`,
+    email: personalInfo.email || "",
+    phone: personalInfo.phone || "",
+    address: personalInfo.address || "",
+    summary: personalInfo.summary || "",
+    skills: skills.map((s) => s.skills),
+    education: educationInfo.map((e) => ({
+      degree: e.level,
+      institution: e.affiliated,
+      year: e.year,
+    })),
+    experience: experienceInfo.map((exp) => ({
+      jobTitle: exp.position,
+      company: exp.institution,
+      duration: `${exp.jDate} - ${exp.eDate || "Present"}`,
+      description: exp.role,
+    })),
+    projects: projects.map((p) => ({
+      projectName: p.title,
+      projectDesc: p.summary,
+    })),
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end mb-8">
+    <div className="min-h-screen bg-gray-200 py-10 px-4 flex justify-center">
+      <div className="w-full max-w-5xl bg-white shadow-2xl rounded-xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-blue-900 text-white p-8">
+          <h1 className="text-4xl font-bold">
+            {personalInfo.fname} {personalInfo.mname} {personalInfo.lname}
+          </h1>
+          <p className="text-lg mt-2 opacity-80">{personalInfo.title}</p>
+        </div>
+
+        <div className="p-8 grid grid-cols-3 gap-6">
+          {/* Left Sidebar */}
+          <div className="space-y-8">
+            {/* Contact */}
+            <div>
+              <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                Contact
+              </h2>
+              <p className="text-gray-700">📧 {personalInfo.email}</p>
+              <p className="text-gray-700">📞 {personalInfo.phone}</p>
+              <p className="text-gray-700">📍 {personalInfo.address}</p>
+            </div>
+
+            {/* Skills */}
+            {skills.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Skills
+                </h2>
+                <ul className="list-disc ml-4 text-gray-700 space-y-1">
+                  {skills.map((s, i) => (
+                    <li key={i}>{s.skills}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Certifications */}
+            {certification.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Certifications
+                </h2>
+                {certification.map((c, i) => (
+                  <div key={i} className="mb-3">
+                    <p className="font-semibold">{c.title}</p>
+                    <p className="text-sm text-gray-600">
+                      {c.institution} – {c.date}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Right Content */}
+          <div className="col-span-2 space-y-8">
+            {/* Professional Summary */}
+            <div>
+              <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                Professional Summary
+              </h2>
+              <p className="text-gray-700">{personalInfo.summary}</p>
+            </div>
+
+            {/* Experience */}
+            {experienceInfo.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Experience
+                </h2>
+                {experienceInfo.map((exp, i) => (
+                  <div key={i} className="mb-4">
+                    <p className="text-lg font-semibold">
+                      {exp.position} – {exp.institution}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {exp.jDate} – {exp.eDate || "Present"}
+                    </p>
+                    <p className="text-gray-700 mt-2">{exp.role}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Education */}
+            {educationInfo.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Education
+                </h2>
+                {educationInfo.map((edu, i) => (
+                  <div key={i} className="mb-4">
+                    <p className="text-lg font-semibold">
+                      {edu.level} – {edu.affiliated}
+                    </p>
+                    <p className="text-sm text-gray-600">{edu.year}</p>
+                    <p className="text-gray-700">GPA: {edu.gpa}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Projects */}
+            {projects.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Projects
+                </h2>
+                {projects.map((p, i) => (
+                  <div key={i} className="mb-4">
+                    <p className="text-lg font-semibold">{p.title}</p>
+                    <p className="text-gray-700 mt-1">{p.summary}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Achievements */}
+            {achievement.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-blue-700 mb-3 border-b pb-2">
+                  Achievements
+                </h2>
+                {achievement.map((a, i) => (
+                  <div key={i} className="mb-3">
+                    <p className="font-semibold">{a.awardtitle}</p>
+                    <p className="text-sm text-gray-600">
+                      {a.institution} – {a.year || a.awarddate}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* PDF Download Button */}
+        <div className="p-6 text-center">
           <PDFDownloadLink
-            document={
-              <ResumePDF
-                personalInfo={personalInfo}
-                educationInfo={educationInfo}
-                experienceInfo={experienceInfo}
-                certification={certification}
-                achievement={achievement}
-                skills={skills}
-                projects={projects}
-              />
-            }
-            fileName={`${personalInfo.fname || "Academic_CV"}_Academic_CV.pdf`}
+            document={<ResumePDF2 form={form} />}
+            fileName={`${personalInfo.fname || "Resume"}_Resume.pdf`}
           >
             {({ loading }) => (
-              <button className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-medium text-sm uppercase tracking-wide transition-all duration-200 hover:bg-indigo-700 shadow-lg hover:shadow-xl">
-                {loading ? "Preparing Academic CV..." : "Download Academic CV"}
+              <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+                {loading ? "Preparing PDF..." : "Download PDF"}
               </button>
             )}
           </PDFDownloadLink>
-        </div>
-
-        <div className="flex gap-8 max-w-full">
-          {/* Sidebar */}
-          <div
-            className="w-[28%] min-h-[90vh] rounded-2xl p-8 flex flex-col"
-            style={{
-              backgroundColor: "#1e293b",
-              color: "#f1f5f9",
-            }}
-          >
-            <div className="flex flex-col space-y-8">
-              <div>
-                <h1 className="text-3xl font-black leading-tight">
-                  {personalInfo.fname} {personalInfo.mname} {personalInfo.lname}
-                </h1>
-                <p className="text-indigo-300 text-sm font-medium mt-2">
-                  {personalInfo.title}
-                </p>
-              </div>
-
-              <div>
-                <h2 className="text-indigo-400 font-bold text-sm uppercase tracking-wider mb-4 border-b-2 border-indigo-500 pb-2">
-                  Contact Information
-                </h2>
-                <div className="space-y-3 text-sm">
-                  <p>Email: {personalInfo.email}</p>
-                  <p>Phone: {personalInfo.phone}</p>
-                  <p>Address: {personalInfo.address}</p>
-                </div>
-              </div>
-
-              {skills.length > 0 && (
-                <div>
-                  <h2 className="text-indigo-400 font-bold text-sm uppercase tracking-wider mb-4 border-b-2 border-indigo-500 pb-2">
-                    Research & Technical Skills
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-2 bg-indigo-500 text-white text-xs font-medium rounded-full"
-                      >
-                        {skill.skills}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="w-[72%]">
-            <div className="bg-white rounded-2xl p-8 shadow-2xl">
-              {/* Education - Prominent Position */}
-              {educationInfo.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-indigo-600 font-bold text-sm uppercase tracking-wider border-b-3 border-indigo-500 pb-3 inline-block mb-6">
-                    Education
-                  </h2>
-                  {educationInfo.map((edu, index) => (
-                    <div key={index} className="mb-8">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-xl font-bold text-gray-900">
-                            {edu.level}
-                          </h3>
-                          <p className="text-gray-700 text-sm mt-1">{edu.affiliated}</p>
-                        </div>
-                        <span className="text-sm font-medium text-gray-600 ml-4">
-                          {edu.year}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700 font-medium">GPA: {edu.gpa}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Research Experience / Academic Experience */}
-              {experienceInfo.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-indigo-600 font-bold text-sm uppercase tracking-wider border-b-3 border-indigo-500 pb-3 inline-block mb-6">
-                    Research & Academic Experience
-                  </h2>
-                  {experienceInfo.map((exp, index) => (
-                    <div key={index} className="mb-8">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-gray-900">
-                            {exp.position}
-                          </h3>
-                          <p className="text-gray-700 text-sm mt-1">{exp.institution}</p>
-                        </div>
-                        <span className="text-sm font-medium text-gray-600 ml-4">
-                          {exp.jDate} – {exp.eDate || "Present"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-700 leading-relaxed">{exp.role}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Research Projects/Thesis Work */}
-              {projects.length > 0 && (
-                <div className="mb-10">
-                  <h2 className="text-indigo-600 font-bold text-sm uppercase tracking-wider border-b-3 border-indigo-500 pb-3 inline-block mb-6">
-                    Research Projects
-                  </h2>
-                  {projects.map((project, index) => (
-                    <div key={index} className="mb-8">
-                      <h3 className="text-lg font-bold text-gray-900">{project.title}</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed mt-2">{project.summary}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Awards, Honors, and Scholarships */}
-              {(achievement.length > 0 || certification.length > 0) && (
-                <div className="mb-10">
-                  <h2 className="text-indigo-600 font-bold text-sm uppercase tracking-wider border-b-3 border-indigo-500 pb-3 inline-block mb-6">
-                    Awards, Honors & Certifications
-                  </h2>
-                  {achievement.map((ach, index) => (
-                    <div key={index} className="mb-4">
-                      <h3 className="text-sm font-semibold text-gray-900">{ach.awardtitle}</h3>
-                      <p className="text-xs text-gray-600">{ach.institution} • {ach.awarddate || ach.year}</p>
-                    </div>
-                  ))}
-                  {certification.map((cert, index) => (
-                    <div key={index} className="mb-4">
-                      <h3 className="text-sm font-semibold text-gray-900">{cert.title}</h3>
-                      <p className="text-xs text-gray-600">{cert.institution} • {cert.date}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
