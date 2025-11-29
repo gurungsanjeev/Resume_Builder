@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   header: {
-    backgroundColor: "#0f172a",
+    backgroundColor: "#1C398E",
     color: "#ffffff",
     padding: 20,
     borderRadius: 6,
@@ -57,9 +57,9 @@ const ResumePDF2 = ({ form }) => (
       <View style={styles.header}>
         <Text style={styles.name}>{form.fullName || "Your Name"}</Text>
         {form.title && <Text style={styles.title}>{form.title}</Text>}
-        {form.email && <Text style={styles.contactItem}>📧 {form.email}</Text>}
-        {form.phone && <Text style={styles.contactItem}>📞 {form.phone}</Text>}
-        {form.address && <Text style={styles.contactItem}>📍 {form.address}</Text>}
+        {form.email && <Text style={styles.contactItem}> {form.email}</Text>}
+        {form.phone && <Text style={styles.contactItem}> {form.phone}</Text>}
+        {form.address && <Text style={styles.contactItem}> {form.address}</Text>}
       </View>
 
       <View style={styles.row}>
@@ -67,9 +67,9 @@ const ResumePDF2 = ({ form }) => (
         <View style={styles.leftCol}>
           {/* Contact */}
           <Text style={styles.sectionTitle}>Contact</Text>
-          {form.email && <Text style={styles.listItem}>📧 {form.email}</Text>}
-          {form.phone && <Text style={styles.listItem}>📞 {form.phone}</Text>}
-          {form.address && <Text style={styles.listItem}>📍 {form.address}</Text>}
+          {form.email && <Text style={styles.listItem}> {form.email}</Text>}
+          {form.phone && <Text style={styles.listItem}> {form.phone}</Text>}
+          {form.address && <Text style={styles.listItem}> {form.address}</Text>}
 
           {/* Skills */}
           {form.skills && form.skills.length > 0 && (

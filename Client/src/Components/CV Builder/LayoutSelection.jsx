@@ -8,8 +8,8 @@ const LayoutSelection = () => {
 
     const DesignLayout = [
         {
-            name: "Normal Layout",
-            img: "professional.png",
+            name: "Normal",
+            img: "Normal.png",
             Link: '/normalDesign'
         },
         {
