@@ -1,103 +1,97 @@
 import User from '../model/user.model.js'
-
 import bcrypt from "bcrypt";
 
+// ================== SIGNUP ==================
 export const Signup = async (req, res) => {
   try {
-    let { name, email, password, confirmPassword } = req.body;
+    let { name, email, password} = req.body;
 
-    // checking the all the input field
-    if (!email || !password || !confirmPassword) {
+    // Validate all fields
+    if (!name || !email || !password ) {
       return res.status(400).json({
         success: false,
-        message: "Please enter all the field",
+        message: "Please enter all fields",
       });
     }
 
-    // converting the password into the string
+    // Convert to string
     password = String(password);
-    confirmPassword = String(confirmPassword);
 
-    if (password !== confirmPassword) {
+ 
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
       return res.status(400).json({
-        message: "password and confirm password doesnot match",
+        success: false,
+        message: "User already exists, please use another email",
       });
     }
 
-    //checking if user already exist or not
-    const user = await User.findOne({ email });
-
-    if (user) {
-      return res.status(400).json({
-        success: "false",
-        message: "User already exist, please use another email",
-      });
-    }
-
-    // converting the password into the hashing
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await new User({
+    // Create user
+    const newUser = await User.create({
       name,
       email,
       password: hashedPassword,
-      confirmPassword: hashedPassword,
     });
-
-    await newUser.save();
 
     res.status(200).json({
       success: true,
-      message: "User register successfully",
+      message: "User registered successfully",
       newUser,
     });
+
   } catch (error) {
-    console.log("Error in signup controller", error);
+    console.log("Error in signup controller:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-// # login controllers
 
+// ================== LOGIN ==================
 export const Login = async (req, res) => {
   try {
     let { email, password } = req.body;
 
-    // checking if the input field is empty or not
     if (!email || !password) {
-      return req.status(400).json({
+      return res.status(400).json({
         success: false,
-        message: "Credientials doesn't match",
+        message: "Please enter email and password",
       });
     }
 
-    // converting the password into the string
     password = String(password);
 
-    // finding the user
-
+    // Find user
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
-        message: "User doesn't exist please signup",
+        message: "User does not exist, please signup",
       });
     }
 
+    // Compare password
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
       return res.status(400).json({
-        message: "Password and confirm password doesnot match",
+        success: false,
+        message: "Incorrect password",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "User login successfully",
-      user
+      message: "User login successful",
+      user,
     });
+
   } catch (error) {
-    console.log("Error in login controller");
+    console.log("Error in login controller:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };

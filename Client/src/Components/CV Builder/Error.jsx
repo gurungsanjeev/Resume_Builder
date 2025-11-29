@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Error = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Error = () => {
           Sorry, the page you’re looking for doesn’t exist or has been moved.
         </p>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
         >
           Go Home
